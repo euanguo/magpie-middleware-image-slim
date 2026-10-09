@@ -29,22 +29,25 @@ kept inline.
 
 ```sh
 magpie plugin add euanguo/magpie-middleware-image-slim
-magpie plugin options image-slim '{"keep_last":2}'
+magpie plugin options magpie-middleware-image-slim '{"keep_last":2}'
 magpie plugin            # gateway middleware  onRequest
 ```
+
+`magpie` addresses a plugin by its **package name**, so the option commands use
+`magpie-middleware-image-slim`, not the middleware's short name.
 
 In the app it is under **Plugins**, with its options on its row. Turn it off or
 remove it at any time; nothing else is touched:
 
 ```sh
-magpie plugin off image-slim
-magpie plugin rm image-slim
+magpie plugin off magpie-middleware-image-slim
+magpie plugin rm euanguo/magpie-middleware-image-slim
 ```
 
 ## Options
 
 Defaults are the `magpie.options` in `package.json`. Set yours under
-**Plugins › Installed › Options**, or with `magpie plugin options image-slim '<json>'`.
+**Plugins › Installed › Options**, or with `magpie plugin options magpie-middleware-image-slim '<json>'`.
 
 | Option | Default | Meaning |
 | --- | --- | --- |
