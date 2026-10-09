@@ -1,0 +1,987 @@
+[
+  {
+    "name": "Responses: an old screenshot is replaced by a placeholder naming its file",
+    "ctx": {
+      "protocol": "responses"
+    },
+    "options": {
+      "keep_last": 0,
+      "min_bytes": 0,
+      "placeholder": "[screenshot left out: {path}]"
+    },
+    "request": {
+      "model": "m",
+      "input": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "start"
+            }
+          ]
+        },
+        {
+          "type": "function_call",
+          "name": "view_image",
+          "arguments": "{\"path\":\"/tmp/shot0.png\"}",
+          "call_id": "c0"
+        },
+        {
+          "type": "function_call_output",
+          "call_id": "c0",
+          "output": [
+            {
+              "type": "input_image",
+              "image_url": "data:image/png;base64,AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "detail": "high"
+            }
+          ]
+        },
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "now edit the file"
+            }
+          ]
+        }
+      ]
+    },
+    "expect_request": {
+      "model": "m",
+      "input": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "start"
+            }
+          ]
+        },
+        {
+          "type": "function_call",
+          "name": "view_image",
+          "arguments": "{\"path\":\"/tmp/shot0.png\"}",
+          "call_id": "c0"
+        },
+        {
+          "type": "function_call_output",
+          "call_id": "c0",
+          "output": "[screenshot left out: /tmp/shot0.png]"
+        },
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "now edit the file"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "Responses: the newest image stays inline when keep_last is 1",
+    "ctx": {
+      "protocol": "responses"
+    },
+    "options": {
+      "keep_last": 1,
+      "min_bytes": 0,
+      "placeholder": "[screenshot left out: {path}]"
+    },
+    "request": {
+      "model": "m",
+      "input": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "start"
+            }
+          ]
+        },
+        {
+          "type": "function_call",
+          "name": "view_image",
+          "arguments": "{\"path\":\"/tmp/shot0.png\"}",
+          "call_id": "c0"
+        },
+        {
+          "type": "function_call_output",
+          "call_id": "c0",
+          "output": [
+            {
+              "type": "input_image",
+              "image_url": "data:image/png;base64,AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "detail": "high"
+            }
+          ]
+        },
+        {
+          "type": "function_call",
+          "name": "view_image",
+          "arguments": "{\"path\":\"/tmp/shot1.png\"}",
+          "call_id": "c1"
+        },
+        {
+          "type": "function_call_output",
+          "call_id": "c1",
+          "output": [
+            {
+              "type": "input_image",
+              "image_url": "data:image/png;base64,AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "detail": "high"
+            }
+          ]
+        },
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "now edit the file"
+            }
+          ]
+        }
+      ]
+    },
+    "expect_request": {
+      "model": "m",
+      "input": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "start"
+            }
+          ]
+        },
+        {
+          "type": "function_call",
+          "name": "view_image",
+          "arguments": "{\"path\":\"/tmp/shot0.png\"}",
+          "call_id": "c0"
+        },
+        {
+          "type": "function_call_output",
+          "call_id": "c0",
+          "output": "[screenshot left out: /tmp/shot0.png]"
+        },
+        {
+          "type": "function_call",
+          "name": "view_image",
+          "arguments": "{\"path\":\"/tmp/shot1.png\"}",
+          "call_id": "c1"
+        },
+        {
+          "type": "function_call_output",
+          "call_id": "c1",
+          "output": [
+            {
+              "type": "input_image",
+              "image_url": "data:image/png;base64,AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "detail": "high"
+            }
+          ]
+        },
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "now edit the file"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "Responses: an image in the turn being sent is never touched, whatever keep_last says",
+    "ctx": {
+      "protocol": "responses"
+    },
+    "options": {
+      "keep_last": 0,
+      "min_bytes": 0,
+      "placeholder": "[screenshot left out: {path}]"
+    },
+    "request": {
+      "model": "m",
+      "input": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "start"
+            }
+          ]
+        },
+        {
+          "type": "function_call",
+          "name": "view_image",
+          "arguments": "{\"path\":\"/tmp/shot0.png\"}",
+          "call_id": "c0"
+        },
+        {
+          "type": "function_call_output",
+          "call_id": "c0",
+          "output": [
+            {
+              "type": "input_image",
+              "image_url": "data:image/png;base64,AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "detail": "high"
+            }
+          ]
+        },
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "look at this"
+            },
+            {
+              "type": "input_image",
+              "image_url": "data:image/png;base64,AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+            }
+          ]
+        }
+      ]
+    },
+    "expect_request": {
+      "model": "m",
+      "input": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "start"
+            }
+          ]
+        },
+        {
+          "type": "function_call",
+          "name": "view_image",
+          "arguments": "{\"path\":\"/tmp/shot0.png\"}",
+          "call_id": "c0"
+        },
+        {
+          "type": "function_call_output",
+          "call_id": "c0",
+          "output": "[screenshot left out: /tmp/shot0.png]"
+        },
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "look at this"
+            },
+            {
+              "type": "input_image",
+              "image_url": "data:image/png;base64,AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "Responses: a pasted image has no file to name, and says so",
+    "ctx": {
+      "protocol": "responses"
+    },
+    "options": {
+      "keep_last": 0,
+      "min_bytes": 0
+    },
+    "request": {
+      "model": "m",
+      "input": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "start"
+            },
+            {
+              "type": "input_image",
+              "image_url": "data:image/png;base64,AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+            }
+          ]
+        },
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "next"
+            }
+          ]
+        }
+      ]
+    },
+    "expect_request": {
+      "model": "m",
+      "input": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "start"
+            },
+            {
+              "type": "input_text",
+              "text": "[0.00 MB image left out here: an image the user attached, already seen earlier in this conversation. Rely on what you already said about it. If you need it again, ask the user to attach it once more.]"
+            }
+          ]
+        },
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "next"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "Responses: an image too small to matter is left alone",
+    "ctx": {
+      "protocol": "responses"
+    },
+    "options": {
+      "keep_last": 0
+    },
+    "request": {
+      "model": "m",
+      "input": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "start"
+            },
+            {
+              "type": "input_image",
+              "image_url": "data:image/png;base64,AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+            }
+          ]
+        },
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "next"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "Responses: only the tools you name are slimmed",
+    "ctx": {
+      "protocol": "responses"
+    },
+    "options": {
+      "keep_last": 0,
+      "min_bytes": 0,
+      "placeholder": "[screenshot left out: {path}]",
+      "tools": [
+        "computer"
+      ]
+    },
+    "request": {
+      "model": "m",
+      "input": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "start"
+            }
+          ]
+        },
+        {
+          "type": "function_call",
+          "name": "view_image",
+          "arguments": "{\"path\":\"/tmp/shot0.png\"}",
+          "call_id": "c0"
+        },
+        {
+          "type": "function_call_output",
+          "call_id": "c0",
+          "output": [
+            {
+              "type": "input_image",
+              "image_url": "data:image/png;base64,AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "detail": "high"
+            }
+          ]
+        },
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "next"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "Responses: a tool you do name is slimmed",
+    "ctx": {
+      "protocol": "responses"
+    },
+    "options": {
+      "keep_last": 0,
+      "min_bytes": 0,
+      "placeholder": "[screenshot left out: {path}]",
+      "tools": [
+        "view_image"
+      ]
+    },
+    "request": {
+      "model": "m",
+      "input": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "start"
+            }
+          ]
+        },
+        {
+          "type": "function_call",
+          "name": "view_image",
+          "arguments": "{\"path\":\"/tmp/shot0.png\"}",
+          "call_id": "c0"
+        },
+        {
+          "type": "function_call_output",
+          "call_id": "c0",
+          "output": [
+            {
+              "type": "input_image",
+              "image_url": "data:image/png;base64,AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "detail": "high"
+            }
+          ]
+        },
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "next"
+            }
+          ]
+        }
+      ]
+    },
+    "expect_request": {
+      "model": "m",
+      "input": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "start"
+            }
+          ]
+        },
+        {
+          "type": "function_call",
+          "name": "view_image",
+          "arguments": "{\"path\":\"/tmp/shot0.png\"}",
+          "call_id": "c0"
+        },
+        {
+          "type": "function_call_output",
+          "call_id": "c0",
+          "output": "[screenshot left out: /tmp/shot0.png]"
+        },
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "next"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "Responses: the placeholder template takes {kind}, {tool}, {path} and {id}",
+    "ctx": {
+      "protocol": "responses"
+    },
+    "options": {
+      "keep_last": 0,
+      "min_bytes": 0,
+      "placeholder": "{kind}|{tool}|{path}|{id}"
+    },
+    "request": {
+      "model": "m",
+      "input": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "start"
+            }
+          ]
+        },
+        {
+          "type": "function_call",
+          "name": "view_image",
+          "arguments": "{\"path\":\"/tmp/shot0.png\"}",
+          "call_id": "c0"
+        },
+        {
+          "type": "function_call_output",
+          "call_id": "c0",
+          "output": [
+            {
+              "type": "input_image",
+              "image_url": "data:image/png;base64,AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "detail": "high"
+            }
+          ]
+        },
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "next"
+            }
+          ]
+        }
+      ]
+    },
+    "expect_request": {
+      "model": "m",
+      "input": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "start"
+            }
+          ]
+        },
+        {
+          "type": "function_call",
+          "name": "view_image",
+          "arguments": "{\"path\":\"/tmp/shot0.png\"}",
+          "call_id": "c0"
+        },
+        {
+          "type": "function_call_output",
+          "call_id": "c0",
+          "output": "tool|view_image|/tmp/shot0.png|89417985"
+        },
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "next"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "Anthropic: an image inside a tool_result, as Claude Code sends a screenshot",
+    "ctx": {
+      "protocol": "anthropic"
+    },
+    "options": {
+      "keep_last": 0,
+      "min_bytes": 0,
+      "placeholder": "[screenshot left out: {path}]"
+    },
+    "request": {
+      "model": "m",
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "start"
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "tool_result",
+              "tool_use_id": "t1",
+              "content": [
+                {
+                  "type": "image",
+                  "source": {
+                    "type": "base64",
+                    "media_type": "image/png",
+                    "data": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "shot"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "next"
+            }
+          ]
+        }
+      ]
+    },
+    "expect_request": {
+      "model": "m",
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "start"
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "tool_result",
+              "tool_use_id": "t1",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[screenshot left out: ]"
+                },
+                {
+                  "type": "text",
+                  "text": "shot"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "next"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "Anthropic: an image in the message's own content",
+    "ctx": {
+      "protocol": "anthropic"
+    },
+    "options": {
+      "keep_last": 0,
+      "min_bytes": 0,
+      "placeholder": "[screenshot left out: {path}]"
+    },
+    "request": {
+      "model": "m",
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "start"
+            },
+            {
+              "type": "image",
+              "source": {
+                "type": "base64",
+                "media_type": "image/png",
+                "data": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+              }
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "next"
+            }
+          ]
+        }
+      ]
+    },
+    "expect_request": {
+      "model": "m",
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "start"
+            },
+            {
+              "type": "text",
+              "text": "[screenshot left out: ]"
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "next"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "Chat Completions: an image_url part",
+    "ctx": {
+      "protocol": "chat"
+    },
+    "options": {
+      "keep_last": 0,
+      "min_bytes": 0,
+      "placeholder": "[screenshot left out: {path}]"
+    },
+    "request": {
+      "model": "m",
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "start"
+            },
+            {
+              "type": "image_url",
+              "image_url": {
+                "url": "data:image/png;base64,AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+              }
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "next"
+            }
+          ]
+        }
+      ]
+    },
+    "expect_request": {
+      "model": "m",
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "start"
+            },
+            {
+              "type": "text",
+              "text": "[screenshot left out: ]"
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "next"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "Gemini: an inlineData part",
+    "ctx": {
+      "protocol": "gemini"
+    },
+    "options": {
+      "keep_last": 0,
+      "min_bytes": 0,
+      "placeholder": "[screenshot left out: {path}]"
+    },
+    "request": {
+      "model": "m",
+      "contents": [
+        {
+          "role": "user",
+          "parts": [
+            {
+              "text": "start"
+            },
+            {
+              "inlineData": {
+                "mimeType": "image/png",
+                "data": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+              }
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "parts": [
+            {
+              "text": "next"
+            }
+          ]
+        }
+      ]
+    },
+    "expect_request": {
+      "model": "m",
+      "contents": [
+        {
+          "role": "user",
+          "parts": [
+            {
+              "text": "start"
+            },
+            {
+              "text": "[screenshot left out: ]"
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "parts": [
+            {
+              "text": "next"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "a request with no image at all is sent on untouched",
+    "ctx": {
+      "protocol": "responses"
+    },
+    "options": {
+      "keep_last": 0,
+      "min_bytes": 0,
+      "placeholder": "[screenshot left out: {path}]"
+    },
+    "request": {
+      "model": "m",
+      "input": [
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "start"
+            }
+          ]
+        },
+        {
+          "type": "message",
+          "role": "user",
+          "content": [
+            {
+              "type": "input_text",
+              "text": "next"
+            }
+          ]
+        }
+      ]
+    }
+  }
+]
