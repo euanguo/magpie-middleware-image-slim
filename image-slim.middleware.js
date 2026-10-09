@@ -20,12 +20,18 @@
 //   keep_last          2      how many of the newest images stay untouched
 //   keep_current_turn  true   never touch images from the turn being sent
 //   min_bytes          8192   leave images smaller than this alone
-//   agents             []     only these agents ([] = every agent)
+//   agents             ["codex"]  only these agents ([] = every agent)
 //   models             []     only these models ([] = every model)
 //   tools              []     only these tools' results ([] = every tool)
 //   attachments        true   also slim images the user pasted or attached
 //   placeholder        ""     your own text; "" uses the built-in wording
 //   log                true   write what was saved to magpie's log
+
+// Codex is the agent this was written for: it is the one that resends a whole
+// transcript on every turn. magpie names the caller after the program it sees,
+// so a Codex session run by another app arrives under that app's name and is
+// left alone until you add it here yourself.
+const DEFAULT_AGENTS = ["codex"]
 
 // onRequest is called with the body the agent sent, before magpie routes it.
 // Return the body to send a changed one, undefined to send it as it came.
@@ -55,7 +61,7 @@ export function onRequest(body, ctx) {
     after -= img.bytes
   }
   if (!slimmed) return
-  if (o.log) console.log(`image-slim: ${slimmed} image(s) left out, ${mb(before)} MB of images -> ${mb(after)} MB (${found.images.length - slimmed} kept)`)
+  if (o.log) console.log(`image-slim: [${ctx.agent}] ${slimmed} image(s) left out, ${mb(before)} MB of images -> ${mb(after)} MB (${found.images.length - slimmed} kept)`)
   return body
 }
 
@@ -67,7 +73,8 @@ function options(raw) {
     keep_last: num(o.keep_last, 2),
     keep_current_turn: o.keep_current_turn !== false,
     min_bytes: num(o.min_bytes, 8192),
-    agents: list(o.agents),
+    // An explicit [] means every agent; leaving the option out means Codex.
+    agents: "agents" in o ? list(o.agents) : DEFAULT_AGENTS,
     models: list(o.models),
     tools: list(o.tools),
     attachments: o.attachments !== false,

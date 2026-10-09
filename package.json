@@ -3,11 +3,29 @@
   "version": "0.1.0",
   "description": "Keep the newest images in a conversation and replace older inline images with a short text placeholder — agents resend every screenshot on every turn otherwise. Gateway middleware for magpie.",
   "type": "module",
-  "files": ["image-slim.middleware.js", "README.md"],
-  "keywords": ["magpie", "magpie-middleware", "magpie-plugin", "images", "context", "bandwidth", "codex", "claude-code", "llm-gateway"],
+  "files": [
+    "image-slim.middleware.js",
+    "README.md"
+  ],
+  "keywords": [
+    "magpie",
+    "magpie-middleware",
+    "magpie-plugin",
+    "images",
+    "context",
+    "bandwidth",
+    "codex",
+    "claude-code",
+    "llm-gateway"
+  ],
   "license": "MIT",
-  "repository": { "type": "git", "url": "git+https://github.com/euanguo/magpie-middleware-image-slim.git" },
-  "scripts": { "test": "bun test" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/euanguo/magpie-middleware-image-slim.git"
+  },
+  "scripts": {
+    "test": "bun test"
+  },
   "magpie": {
     "middleware": "./image-slim.middleware.js",
     "options": {
@@ -16,7 +34,9 @@
       "min_bytes": 8192,
       "attachments": true,
       "tools": [],
-      "agents": [],
+      "agents": [
+        "codex"
+      ],
       "models": [],
       "placeholder": "",
       "log": true

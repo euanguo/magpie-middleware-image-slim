@@ -2,6 +2,7 @@
   {
     "name": "Responses: an old screenshot is replaced by a placeholder naming its file",
     "ctx": {
+      "agent": "codex",
       "protocol": "responses"
     },
     "options": {
@@ -91,6 +92,7 @@
   {
     "name": "Responses: the newest image stays inline when keep_last is 1",
     "ctx": {
+      "agent": "codex",
       "protocol": "responses"
     },
     "options": {
@@ -214,6 +216,7 @@
   {
     "name": "Responses: an image in the turn being sent is never touched, whatever keep_last says",
     "ctx": {
+      "agent": "codex",
       "protocol": "responses"
     },
     "options": {
@@ -311,6 +314,7 @@
   {
     "name": "Responses: a pasted image has no file to name, and says so",
     "ctx": {
+      "agent": "codex",
       "protocol": "responses"
     },
     "options": {
@@ -379,6 +383,7 @@
   {
     "name": "Responses: an image too small to matter is left alone",
     "ctx": {
+      "agent": "codex",
       "protocol": "responses"
     },
     "options": {
@@ -417,6 +422,7 @@
   {
     "name": "Responses: only the tools you name are slimmed",
     "ctx": {
+      "agent": "codex",
       "protocol": "responses"
     },
     "options": {
@@ -473,6 +479,7 @@
   {
     "name": "Responses: a tool you do name is slimmed",
     "ctx": {
+      "agent": "codex",
       "protocol": "responses"
     },
     "options": {
@@ -565,6 +572,7 @@
   {
     "name": "Responses: the placeholder template takes {kind}, {tool}, {path} and {id}",
     "ctx": {
+      "agent": "codex",
       "protocol": "responses"
     },
     "options": {
@@ -654,6 +662,7 @@
   {
     "name": "Anthropic: an image inside a tool_result, as Claude Code sends a screenshot",
     "ctx": {
+      "agent": "codex",
       "protocol": "anthropic"
     },
     "options": {
@@ -753,6 +762,7 @@
   {
     "name": "Anthropic: an image in the message's own content",
     "ctx": {
+      "agent": "codex",
       "protocol": "anthropic"
     },
     "options": {
@@ -822,6 +832,7 @@
   {
     "name": "Chat Completions: an image_url part",
     "ctx": {
+      "agent": "codex",
       "protocol": "chat"
     },
     "options": {
@@ -889,6 +900,7 @@
   {
     "name": "Gemini: an inlineData part",
     "ctx": {
+      "agent": "codex",
       "protocol": "gemini"
     },
     "options": {
@@ -951,6 +963,7 @@
   {
     "name": "a request with no image at all is sent on untouched",
     "ctx": {
+      "agent": "codex",
       "protocol": "responses"
     },
     "options": {
@@ -977,6 +990,120 @@
           "content": [
             {
               "type": "input_text",
+              "text": "next"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "another agent is left alone: the default agents list is Codex only",
+    "ctx": {
+      "protocol": "anthropic",
+      "agent": "claude"
+    },
+    "options": {
+      "keep_last": 0,
+      "min_bytes": 0,
+      "placeholder": "[screenshot left out: {path}]"
+    },
+    "request": {
+      "model": "m",
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "start"
+            },
+            {
+              "type": "image",
+              "source": {
+                "type": "base64",
+                "media_type": "image/png",
+                "data": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+              }
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "next"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "name": "an explicit empty agents list means every agent",
+    "ctx": {
+      "protocol": "anthropic",
+      "agent": "claude"
+    },
+    "options": {
+      "keep_last": 0,
+      "min_bytes": 0,
+      "placeholder": "[screenshot left out: {path}]",
+      "agents": []
+    },
+    "request": {
+      "model": "m",
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "start"
+            },
+            {
+              "type": "image",
+              "source": {
+                "type": "base64",
+                "media_type": "image/png",
+                "data": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+              }
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "next"
+            }
+          ]
+        }
+      ]
+    },
+    "expect_request": {
+      "model": "m",
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "start"
+            },
+            {
+              "type": "text",
+              "text": "[screenshot left out: ]"
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
               "text": "next"
             }
           ]

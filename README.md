@@ -56,7 +56,7 @@ Defaults are the `magpie.options` in `package.json`. Set yours under
 | `min_bytes` | `8192` | Leave images smaller than this alone (base64 payload size). |
 | `attachments` | `true` | Also slim images the user pasted or attached. |
 | `tools` | `[]` | Only slim these tools' results, e.g. `["view_image"]`. `[]` means every tool. |
-| `agents` | `[]` | Only these agents, e.g. `["codex"]`. `[]` means every agent. |
+| `agents` | `["codex"]` | Only these agents. Codex only, by default. `[]` means every agent. |
 | `models` | `[]` | Only these models. `[]` means every model. |
 | `placeholder` | `""` | Your own wording; `""` uses the built-in sentence. |
 | `log` | `true` | Write what was left out to magpie's log, as `plugin: image-slim: …`. |
@@ -68,6 +68,21 @@ The placeholder template takes `{kind}` (`tool` / `attachment`), `{tool}`,
 { "keep_last": 1,
   "placeholder": "[screenshot left out: {mb} MB, file {path} — view_image it again if needed]" }
 ```
+
+## Which agents it touches
+
+The default is Codex alone. magpie names the caller after the program it sees,
+so this matters if Codex runs under another app:
+
+- `codex` — the Codex CLI. Matched by default.
+- another app running Codex — magpie reports that app's name instead (an IDE
+  that hosts Codex reports itself), so add it: `{"agents": ["codex", "that-name"]}`.
+- `[]` — every agent, if you want the same treatment for Claude Code, Gemini CLI
+  and the rest.
+
+To find the name, send one request through the agent and read the `agent` field
+of its entry in `~/.config/magpie/routing/<date>.jsonl`, or look at what
+`magpie plugin` and magpie's Plugins page show for the request.
 
 ## Reading an image back
 
