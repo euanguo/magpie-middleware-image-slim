@@ -1,6 +1,6 @@
 {
   "name": "magpie-middleware-image-slim",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Keep the newest images in a conversation and replace older inline images with a short text placeholder — agents resend every screenshot on every turn otherwise. Gateway middleware for magpie.",
   "type": "module",
   "files": [
@@ -30,6 +30,7 @@
     "middleware": "./image-slim.middleware.js",
     "options": {
       "keep_last": 2,
+      "keep_last_turns": 0,
       "keep_current_turn": true,
       "min_bytes": 8192,
       "attachments": true,

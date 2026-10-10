@@ -18,6 +18,7 @@
 //
 // Options (magpie plugin options image-slim '<json>'):
 //   keep_last          2      how many of the newest images stay untouched
+//   keep_last_turns    0      how many finished turns keep all their images
 //   keep_current_turn  true   never touch images from the turn being sent
 //   min_bytes          8192   leave images smaller than this alone
 //   agents             ["codex"]  only these agents ([] = every agent)
@@ -44,8 +45,7 @@ export function onRequest(body, ctx) {
   const found = collect(body, ctx.protocol)
   if (!found || !found.images.length) return
 
-  const keep = new Set(o.keep_last > 0 ? found.images.slice(-o.keep_last) : [])
-  if (o.keep_current_turn && found.currentTurn >= 0) for (const img of found.images) if (img.index >= found.currentTurn) keep.add(img)
+  const keep = keepSet(found, o)
 
   const before = found.images.reduce((n, img) => n + img.bytes, 0)
   let slimmed = 0
@@ -65,12 +65,43 @@ export function onRequest(body, ctx) {
   return body
 }
 
+// keepSet is what stays inline: the newest keep_last images, every image of
+// the newest keep_last_turns finished turns, and — unless that is turned off —
+// every image of the turn being sent.
+//
+// A finished turn is one the agent has already answered; keeping one whole
+// turn is what keep_last_turns is for, since a count of images can cut a turn
+// in half and leave the model looking at three of a turn's five screenshots.
+// keep_last_turns 0, with keep_last 0, keeps the turn being sent and nothing
+// else: every image the agent has already replied about becomes a placeholder.
+function keepSet(found, o) {
+  const keep = new Set()
+  if (o.keep_last > 0) for (const img of found.images.slice(-o.keep_last)) keep.add(img)
+
+  const floors = []
+  if (o.keep_current_turn) floors.push(turnStart(found.turns, 1))
+  if (o.keep_last_turns > 0) floors.push(turnStart(found.turns, o.keep_last_turns + 1))
+  const floor = floors.filter((at) => at >= 0).sort((a, b) => a - b)[0]
+  if (floor !== undefined) for (const img of found.images) if (img.index >= floor) keep.add(img)
+
+  return keep
+}
+
+// turnStart is where the nth-newest turn begins, counting the turn being sent
+// as 1. Asking for more turns than the request has means its first turn, and a
+// request with no turn at all has nothing to anchor on, so it is -1.
+function turnStart(turns, n) {
+  if (!turns.length) return -1
+  return turns[Math.max(0, turns.length - n)]
+}
+
 function options(raw) {
   const o = raw && typeof raw === "object" ? raw : {}
   const num = (v, d) => (typeof v === "number" && isFinite(v) && v >= 0 ? Math.floor(v) : d)
   const list = (v) => (Array.isArray(v) ? v.filter((x) => typeof x === "string" && x) : [])
   return {
     keep_last: num(o.keep_last, 2),
+    keep_last_turns: num(o.keep_last_turns, 0),
     keep_current_turn: o.keep_current_turn !== false,
     min_bytes: num(o.min_bytes, 8192),
     // An explicit [] means every agent; leaving the option out means Codex.
@@ -84,7 +115,8 @@ function options(raw) {
 }
 
 // collect walks the request in its API's shape and returns every inline image,
-// in the order the agent sent them, with a setter that swaps it for text.
+// in the order the agent sent them, with a setter that swaps it for text, and
+// where each turn in it starts.
 function collect(body, protocol) {
   if (!body || typeof body !== "object") return null
   if (protocol === "responses") return collectResponses(body)
@@ -93,6 +125,10 @@ function collect(body, protocol) {
   return collectChat(body)
 }
 
+// A turn starts at a message the user sent. Tool results are not turns even
+// where an API carries them in a user-role message: Claude Code's tool_result
+// and Gemini's functionResponse both come back that way, and the turn they
+// belong to began earlier. An image with no words beside it is still a turn.
 function collectResponses(body) {
   const input = Array.isArray(body.input) ? body.input : null
   if (!input) return null
@@ -101,8 +137,10 @@ function collectResponses(body) {
     if (it && it.type === "function_call" && it.call_id) calls.set(it.call_id, it)
   }
   const images = []
+  const turns = []
   input.forEach((it, index) => {
     if (!it) return
+    if (it.type === "message" && it.role === "user") turns.push(index)
     if (it.type === "message" && Array.isArray(it.content)) {
       it.content.forEach((part, at) => {
         if (!isDataUrlPart(part, "input_image", "image_url")) return
@@ -127,20 +165,26 @@ function collectResponses(body) {
       })
     }
   })
-  return { images, currentTurn: lastUserTurn(input) }
+  return { images, turns }
 }
 
 function collectAnthropic(body) {
   const msgs = Array.isArray(body.messages) ? body.messages : []
   const images = []
+  const turns = []
   msgs.forEach((m, index) => {
+    if (m?.role === "user" && !onlyToolResults(m.content)) turns.push(index)
     const list = Array.isArray(m?.content) ? m.content : null
     if (!list) return
     // An image sits either in the message's own content or inside a
     // tool_result, which is where Claude Code's screenshots land.
     walkAnthropic(list, index, images, "", "")
   })
-  return { images, currentTurn: msgs.map((m) => m?.role).lastIndexOf("user") }
+  return { images, turns }
+}
+
+function onlyToolResults(content) {
+  return Array.isArray(content) && content.length > 0 && content.every((p) => p?.type === "tool_result")
 }
 
 function walkAnthropic(list, index, images, tool, path) {
@@ -163,7 +207,9 @@ function walkAnthropic(list, index, images, tool, path) {
 function collectChat(body) {
   const msgs = Array.isArray(body.messages) ? body.messages : []
   const images = []
+  const turns = []
   msgs.forEach((m, index) => {
+    if (m?.role === "user") turns.push(index)
     const list = Array.isArray(m?.content) ? m.content : null
     if (!list) return
     list.forEach((part, at) => {
@@ -176,15 +222,17 @@ function collectChat(body) {
       })
     })
   })
-  return { images, currentTurn: msgs.map((m) => m?.role).lastIndexOf("user") }
+  return { images, turns }
 }
 
 function collectGemini(body) {
   const contents = Array.isArray(body.contents) ? body.contents : []
   const images = []
+  const turns = []
   contents.forEach((c, index) => {
     const parts = Array.isArray(c?.parts) ? c.parts : null
     if (!parts) return
+    if (c?.role === "user" && parts.some((p) => p && !p.functionResponse && !p.function_response)) turns.push(index)
     parts.forEach((part, at) => {
       const inline = part?.inlineData || part?.inline_data
       if (!inline || typeof inline.data !== "string") return
@@ -196,21 +244,7 @@ function collectGemini(body) {
       })
     })
   })
-  return { images, currentTurn: contents.map((c) => c?.role).lastIndexOf("user") }
-}
-
-// lastUserTurn is where the turn being sent starts: images at or after it are
-// the ones the agent is looking at right now and are never touched.
-function lastUserTurn(input) {
-  for (let i = input.length - 1; i >= 0; i--) {
-    const it = input[i]
-    if (it?.type !== "message" || it.role !== "user" || !Array.isArray(it.content)) continue
-    const text = it.content.some((p) => (p?.type === "input_text" || p?.type === "text") && typeof p.text === "string" && p.text.trim())
-    if (text) return i
-  }
-  // No turn being sent could be found: keep_current_turn has nothing to hold
-  // on to, so the newest keep_last images are the only ones kept.
-  return -1
+  return { images, turns }
 }
 
 function pathOf(call) {
@@ -276,4 +310,4 @@ function mb(bytes) {
 }
 
 // Tests use these; magpie never calls them.
-export const _internal = { options, collect, placeholder, pathOf, hash }
+export const _internal = { options, collect, keepSet, turnStart, placeholder, pathOf, hash }

@@ -52,6 +52,7 @@ Defaults are the `magpie.options` in `package.json`. Set yours under
 | Option | Default | Meaning |
 | --- | --- | --- |
 | `keep_last` | `2` | How many of the newest images stay inline. `0` keeps only the turn being sent. |
+| `keep_last_turns` | `0` | How many of the newest *finished* turns keep **all** their images inline, not just the newest few. `0` keeps none. |
 | `keep_current_turn` | `true` | Never touch images from the turn being sent. |
 | `min_bytes` | `8192` | Leave images smaller than this alone (base64 payload size). |
 | `attachments` | `true` | Also slim images the user pasted or attached. |
@@ -68,6 +69,26 @@ The placeholder template takes `{kind}` (`tool` / `attachment`), `{tool}`,
 { "keep_last": 1,
   "placeholder": "[screenshot left out: {mb} MB, file {path} — view_image it again if needed]" }
 ```
+
+### Keeping turns, not images
+
+A count of images is a blunt dial: `keep_last` 2 in a turn that carried five
+screenshots leaves the model looking at two of them. A **turn** is the natural
+unit, because once the agent has answered a turn, what it saw in that turn is
+already in the conversation as words — the agent's own reply and a placeholder
+that names the file.
+
+`keep_last_turns` keeps whole turns:
+
+| Want | Options |
+| --- | --- |
+| Only the turn being sent; every image the agent has already answered about becomes a placeholder | `{"keep_last": 0}` |
+| The turn being sent plus the whole previous turn | `{"keep_last": 0, "keep_last_turns": 1}` |
+| The newest two finished turns as well | `{"keep_last": 0, "keep_last_turns": 2}` |
+
+The turn being sent is the last message the user sent, whether or not it has
+words beside the image, and the tool results that came back inside it stay
+inline too: the agent is still working on that turn.
 
 ## Which agents it touches
 
@@ -119,6 +140,12 @@ Responses-compatible server accepts.
 
 - A middleware may import only files beside it, so this is one plain
   JavaScript file: no `node:` modules, no dependencies.
+- The turn being sent is anchored on the last message the user sent, so an
+  image sent on its own, with no words beside it, still counts as the turn
+  being sent and is never the one dropped.
+- A tool's answer is not a turn even where the API carries it in a user-role
+  message (Claude Code's `tool_result`, Gemini's `functionResponse`): the turn
+  it belongs to began at the message the user sent.
 - Replacing an old image shifts the prompt prefix once, when that image first
   ages out. The placeholder is stable text after that, so the prefix settles.
 - The upstream model really does stop seeing the older images. Everything it
